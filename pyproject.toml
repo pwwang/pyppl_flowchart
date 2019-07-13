@@ -12,7 +12,6 @@ readme = "README.md"
 homepage = "https://github.com/pwwang/pyppl-flowchart"
 repository = "https://github.com/pwwang/pyppl-flowchart"
 
-
 [tool.poetry.dependencies]
 python = "^3.6"
 pyppl = "^2.0.0"
