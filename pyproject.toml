@@ -11,6 +11,7 @@ license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/pwwang/pyppl-flowchart"
 repository = "https://github.com/pwwang/pyppl-flowchart"
+packages = [{ include = "pyppl-flowchart" } ]
 
 [tool.poetry.dependencies]
 python = "^3.6"
