@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 import yaml
-from pyppl.plugin import hookimpl, pypplPreRunFunc
+from pyppl.plugin import hookimpl, prerun
 from pyppl.logger import logger
 from pyppl.utils import fs, Box
 from pyppl.exception import ProcAttributeError
@@ -47,6 +47,7 @@ def pyppl_allroutes(ppl):
 	for path2 in paths2:
 		logger.debug('* %s', ' -> '.join(path2))
 
+@prerun
 def pyppl_flowchart (ppl, fcfile = None, dotfile = None):
 	"""@API
 	Generate graph in dot language and visualize it.
@@ -84,5 +85,5 @@ def pyppl_flowchart (ppl, fcfile = None, dotfile = None):
 	logger.info ('DOT file saved to: %s', fchart.dotfile)
 
 @hookimpl
-def pypplRegisterFunc(ppl):
-	pypplPreRunFunc(ppl, 'flowchart', pyppl_flowchart)
+def pypplInit(ppl):
+	setattr(ppl, 'flowchart', pyppl_flowchart)
