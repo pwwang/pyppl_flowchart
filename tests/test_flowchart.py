@@ -253,12 +253,3 @@ class TestFlowchart:
 		for svg in svgs:
 			assert svg in svgsource
 			svgsource = svgsource[(svgsource.find(svg) + len(svg)):]
-
-
-## test __init__.py
-from pyppl import PyPPL
-def test_pyppl_flowchart_init(procs, tmp_path):
-	fcfile = tmp_path / 'test_pyppl_flowchart_init.svg'
-	PyPPL().start(procs['p1']).run().flowchart(fcfile)
-
-

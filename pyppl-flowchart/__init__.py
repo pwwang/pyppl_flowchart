@@ -1,16 +1,14 @@
 import sys
 from pathlib import Path
-import yaml
 from pyppl.plugin import hookimpl, prerun, addmethod
 from pyppl.logger import logger
-from pyppl.utils import fs, Box
-from pyppl.exception import ProcAttributeError
 from .flowchart import Flowchart
 
 __version__ = "0.0.1"
 
 @hookimpl
 def setup(config):
+	print('33')
 	config['hide'] = False
 	config['_flowchart'] = dict(theme = 'default')
 
@@ -23,7 +21,7 @@ def pyppl_allroutes(ppl):
 	logger.debug('ALL ROUTES:')
 	#paths  = sorted([list(reversed(path)) for path in ppl.tree.getAllPaths()])
 	paths  = sorted([pnode.name() for pnode in reversed(apath)]
-		for apath in ppl.tree.getAllPaths(check_hide = False))
+		for apath in ppl.tree.getAllPaths())
 	paths2 = [] # processes merged from the same procset
 	for apath in paths:
 		prevset = None
@@ -71,7 +69,7 @@ def pyppl_flowchart (ppl, fcfile = None, dotfile = None):
 		fchart.addNode(start, 'start')
 	for end in ppl.tree.getEnds():
 		fchart.addNode(end, 'end')
-		for apath in ppl.tree.getPathsToStarts(end, check_hide = True):
+		for apath in ppl.tree.getPathsToStarts(end):
 			for i, pnode in enumerate(apath):
 				if i == 0:
 					fchart.addNode(pnode)
@@ -86,4 +84,4 @@ def pyppl_flowchart (ppl, fcfile = None, dotfile = None):
 
 @hookimpl
 def pypplInit(ppl):
-	addmethod(ppl, 'report', pyppl_flowchart)
+	addmethod(ppl, 'flowchart', pyppl_flowchart)
