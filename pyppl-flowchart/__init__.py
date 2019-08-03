@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 import yaml
-from pyppl.plugin import hookimpl, prerun
+from pyppl.plugin import hookimpl, prerun, addmethod
 from pyppl.logger import logger
 from pyppl.utils import fs, Box
 from pyppl.exception import ProcAttributeError
@@ -11,8 +11,8 @@ __version__ = "0.0.1"
 
 @hookimpl
 def setup(config):
-	config['_flowchart'] = dict(theme = 'default')
 	config['hide'] = False
+	config['_flowchart'] = dict(theme = 'default')
 
 def pyppl_allroutes(ppl):
 	"""@API
@@ -86,4 +86,4 @@ def pyppl_flowchart (ppl, fcfile = None, dotfile = None):
 
 @hookimpl
 def pypplInit(ppl):
-	setattr(ppl, 'flowchart', pyppl_flowchart)
+	addmethod(ppl, 'report', pyppl_flowchart)
