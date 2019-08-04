@@ -1,3 +1,5 @@
+"""Flowchart plugin for PyPPL"""
+# pylint: disable=invalid-name
 import sys
 from pathlib import Path
 from pyppl.plugin import hookimpl, prerun, addmethod
@@ -8,11 +10,13 @@ __version__ = "0.0.1"
 
 @hookimpl
 def setup(config):
-	print('33')
+	"""
+	Setup the plugin
+	"""
 	config['hide'] = False
 	config['_flowchart'] = dict(theme = 'default')
 
-def pyppl_allroutes(ppl):
+def pypplAllroutes(ppl):
 	"""@API
 	Show all the routes in the log.
 	@returns:
@@ -37,6 +41,7 @@ def pyppl_allroutes(ppl):
 				elif prevset == procset:
 					continue
 		if path2 not in paths2:
+			# pylint: disable=invalid-name
 			paths2.append(path2)
 		# see details for procset
 		#if path != path2:
@@ -46,7 +51,7 @@ def pyppl_allroutes(ppl):
 		logger.debug('* %s', ' -> '.join(path2))
 
 @prerun
-def pyppl_flowchart (ppl, fcfile = None, dotfile = None):
+def pypplFlowchart (ppl, fcfile = None, dotfile = None):
 	"""@API
 	Generate graph in dot language and visualize it.
 	@params:
@@ -58,7 +63,7 @@ def pyppl_flowchart (ppl, fcfile = None, dotfile = None):
 	@returns:
 		(PyPPL): The pipeline object itself.
 	"""
-	pyppl_allroutes(ppl)
+	pypplAllroutes(ppl)
 	fcfile  = fcfile or (Path('.') / Path(sys.argv[0]).stem).with_suffix(
 		'%s.pyppl.svg' % ('.' + str(ppl.counter) if ppl.counter else ''))
 	dotfile = dotfile if dotfile else Path(fcfile).with_suffix('.dot')
@@ -84,4 +89,7 @@ def pyppl_flowchart (ppl, fcfile = None, dotfile = None):
 
 @hookimpl
 def pypplInit(ppl):
-	addmethod(ppl, 'flowchart', pyppl_flowchart)
+	"""
+	Initiate pipeline
+	"""
+	addmethod(ppl, 'flowchart', pypplFlowchart)
