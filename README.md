@@ -29,9 +29,9 @@ p3.hide = True
 In your configuration:
 ```yaml
 default:
-	_flowchart:
-		theme: default
-	# other default configurations
+    _flowchart:
+        theme: default
+    # other default configurations
 # other profiles
 ```
 
@@ -44,31 +44,31 @@ We have two builtin themes: `default` and `dark`:
 You can also default your own theme in the configuration:
 ```yaml
 default:
-	_flowchart:
-		theme:
-			base:
-				shape: box
-				style: rounded,filled
-				fillcolor: "#ffffff"
-				color: "#000000"
-				fontcolor: "#000000"
-			start:
-				style: filled
-				color: "#259229"
-			end:
-				style: filled
-				color: "#d63125"
-			export:
-				fontcolor: "#c71be4"
-			skip:
-				fillcolor: "#eaeaea"
-			skip+:
-				fillcolor: "#b5b3b3"
-			resume:
-				fillcolor: "#b9ffcd"
-			resume+:
-				fillcolor: "#58b773"
-			procset:
-				style: filled
-				color: "#eeeeee"
+    _flowchart:
+        theme:
+            base:
+                shape: box
+                style: rounded,filled
+                fillcolor: "#ffffff"
+                color: "#000000"
+                fontcolor: "#000000"
+            start:
+                style: filled
+                color: "#259229"
+            end:
+                style: filled
+                color: "#d63125"
+            export:
+                fontcolor: "#c71be4"
+            skip:
+                fillcolor: "#eaeaea"
+            skip+:
+                fillcolor: "#b5b3b3"
+            resume:
+                fillcolor: "#b9ffcd"
+            resume+:
+                fillcolor: "#58b773"
+            procset:
+                style: filled
+                color: "#eeeeee"
 ```
