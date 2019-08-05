@@ -18,3 +18,7 @@ python = "^3.6"
 pyppl = "^2.0.0"
 panflute = "^1.0.0"
 graphviz = "^0.11"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-cov = "*"
