@@ -4,14 +4,15 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "pyppl-flowchart"
-version = "0.0.1"
+version = "0.0.2"
 description = "Generating flowchart for PyPPL"
 authors = [ "pwwang <pwwang@pwwang.com>",]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/pwwang/pyppl-flowchart"
 repository = "https://github.com/pwwang/pyppl-flowchart"
-packages = [{ include = "pyppl-flowchart" } ]
+[[tool.poetry.packages]]
+include = "pyppl-flowchart"
 
 [tool.poetry.dependencies]
 python = "^3.6"

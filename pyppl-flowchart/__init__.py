@@ -7,7 +7,7 @@ from pyppl.logger import logger, THEMES, LEVELS_ALWAYS
 from pyppl.proctree import ProcTree
 from .flowchart import Flowchart
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 LOGGER_THEME = dict(
 	greenOnBlack   = dict(FCHART = '{f.GREEN}'),
