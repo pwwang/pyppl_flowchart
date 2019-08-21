@@ -7,7 +7,7 @@ from pathlib import Path
 environ['PYPPL_default__log'] = 'py:{"leveldiffs": "DEBUG"}'
 from pyppl import PyPPL, Proc, Box, ProcSet, ProcTree
 from pyppl.utils import fs
-pyppl_flowchart = __import__('pyppl-flowchart')
+pyppl_flowchart = __import__('pyppl_flowchart')
 
 # don't use fix_flowchart, as plugin won't be loaded
 @pytest.fixture

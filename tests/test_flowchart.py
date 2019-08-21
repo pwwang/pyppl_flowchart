@@ -5,7 +5,7 @@ try:
 except ImportError:
 	pytest.skip('graphviz is not installed', allow_module_level=True)
 
-flowchart = __import__('pyppl-flowchart.flowchart', fromlist = ['flowchart'])
+flowchart = __import__('pyppl_flowchart.flowchart', fromlist = ['flowchart'])
 Flowchart, THEMES, ROOTGROUP = flowchart.Flowchart, flowchart.THEMES, flowchart.ROOTGROUP
 
 from pyppl import Proc

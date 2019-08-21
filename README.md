@@ -1,4 +1,4 @@
-# pyppl-flowchart
+# pyppl_flowchart
 
 [![Pypi][3]][4] [![Github][5]][6] [![PyPPL][7]][1] [![PythonVers][8]][4] [![Travis building][10]][11] [![Codacy][12]][13] [![Codacy coverage][14]][13]
 
@@ -6,7 +6,7 @@ Flowchart generator for [PyPPL](https://github.com/pwwang/PyPPL).
 
 ## Installation
 ```shell
-pip install pyppl-flowchart
+pip install pyppl_flowchart
 ```
 
 ## Usage
@@ -76,15 +76,15 @@ default:
                 color: "#eeeeee"
 ```
 [1]: https://github.com/pwwang/PyPPL
-[2]: https://pyppl-flowchart.readthedocs.io/en/latest/
-[3]: https://img.shields.io/pypi/v/pyppl-flowchart?style=flat-square
-[4]: https://pypi.org/project/pyppl-flowchart/
-[5]: https://img.shields.io/github/tag/pwwang/pyppl-flowchart?style=flat-square
-[6]: https://github.com/pwwang/pyppl-flowchart
+[2]: https://pyppl_flowchart.readthedocs.io/en/latest/
+[3]: https://img.shields.io/pypi/v/pyppl_flowchart?style=flat-square
+[4]: https://pypi.org/project/pyppl_flowchart/
+[5]: https://img.shields.io/github/tag/pwwang/pyppl_flowchart?style=flat-square
+[6]: https://github.com/pwwang/pyppl_flowchart
 [7]: https://img.shields.io/github/tag/pwwang/pyppl?label=PyPPL&style=flat-square
-[8]: https://img.shields.io/pypi/pyversions/pyppl-flowchart?style=flat-square
-[10]: https://img.shields.io/travis/pwwang/pyppl-flowchart?style=flat-square
-[11]: https://travis-ci.org/pwwang/pyppl-flowchart
+[8]: https://img.shields.io/pypi/pyversions/pyppl_flowchart?style=flat-square
+[10]: https://img.shields.io/travis/pwwang/pyppl_flowchart?style=flat-square
+[11]: https://travis-ci.org/pwwang/pyppl_flowchart
 [12]: https://img.shields.io/codacy/grade/6f03178e799d49458ff5dd5dbc81cacc?style=flat-square
-[13]: https://app.codacy.com/project/pwwang/pyppl-flowchart/dashboard
+[13]: https://app.codacy.com/project/pwwang/pyppl_flowchart/dashboard
 [14]: https://img.shields.io/codacy/coverage/6f03178e799d49458ff5dd5dbc81cacc?style=flat-square
