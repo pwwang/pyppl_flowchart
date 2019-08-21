@@ -85,6 +85,6 @@ default:
 [8]: https://img.shields.io/pypi/pyversions/pyppl_flowchart?style=flat-square
 [10]: https://img.shields.io/travis/pwwang/pyppl_flowchart?style=flat-square
 [11]: https://travis-ci.org/pwwang/pyppl_flowchart
-[12]: https://img.shields.io/codacy/grade/6f03178e799d49458ff5dd5dbc81cacc?style=flat-square
+[12]: https://img.shields.io/codacy/grade/2a36d87732db453884d7ddaa966ba145?style=flat-square
 [13]: https://app.codacy.com/project/pwwang/pyppl_flowchart/dashboard
-[14]: https://img.shields.io/codacy/coverage/6f03178e799d49458ff5dd5dbc81cacc?style=flat-square
+[14]: https://img.shields.io/codacy/coverage/2a36d87732db453884d7ddaa966ba145?style=flat-square
