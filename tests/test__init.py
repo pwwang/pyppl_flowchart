@@ -5,14 +5,14 @@ import pytest
 from os import environ
 from pathlib import Path
 environ['PYPPL_default__log'] = 'py:{"leveldiffs": "DEBUG"}'
-from pyppl import PyPPL, Proc, Box, ProcSet, ProcTree
+from pyppl import PyPPL, Proc, Diot, ProcSet, ProcTree
 from pyppl.utils import fs
 pyppl_flowchart = __import__('pyppl_flowchart')
 
 # don't use fix_flowchart, as plugin won't be loaded
 @pytest.fixture
 def procs():
-	return Box(
+	return Diot(
 		p1 = Proc('p1'),
 		p2 = Proc('p2'),
 		p3 = Proc('p3'),
@@ -42,7 +42,7 @@ def pset():
 	p17.depends = p16, p18
 	p18.depends = p16
 	p16.depends = p14, p15
-	return Box(p15 = p15, p16 = p16, p17 = p17, p18 = p18, p19 = p19, p20 = p20, p14 = p14)
+	return Diot(p15 = p15, p16 = p16, p17 = p17, p18 = p18, p19 = p19, p20 = p20, p14 = p14)
 
 def test_pyppl_flowchart_init(procs, tmp_path):
 	fcfile = tmp_path / 'test_pyppl_flowchart_init.svg'
