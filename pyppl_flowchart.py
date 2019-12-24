@@ -3,6 +3,8 @@ from copy import deepcopy
 from graphviz import Digraph
 from pyppl.plugin import hookimpl
 
+__version__ = '0.1.0'
+
 THEMES = dict(
 	default = dict(
 		base = dict(

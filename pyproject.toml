@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "pyppl_flowchart"
-version = "0.0.3"
+version = "0.1.0"
 description = "Generating flowchart for PyPPL"
 authors = [ "pwwang <pwwang@pwwang.com>",]
 license = "MIT"
@@ -15,7 +15,6 @@ repository = "https://github.com/pwwang/pyppl_flowchart"
 [tool.poetry.dependencies]
 python = "^3.6"
 pyppl = "*"
-panflute = "^1.0.0"
 graphviz = "^0.11"
 
 [tool.poetry.dev-dependencies]
@@ -24,3 +23,4 @@ pytest-cov = "*"
 
 [tool.poetry.plugins.pyppl]
 pyppl_flowchart = "pyppl_flowchart"
+
