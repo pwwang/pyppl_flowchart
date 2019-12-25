@@ -249,4 +249,4 @@ def pyppl_init(ppl):
 	"""
 	Initiate pipeline
 	"""
-	ppl.method(flowchart)
+	ppl.add_method(flowchart)
