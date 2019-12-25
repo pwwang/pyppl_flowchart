@@ -4,7 +4,7 @@ from graphviz import Digraph
 from pyppl.plugin import hookimpl
 from pyppl.logger import logger
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 THEMES = dict(
 	default = dict(
