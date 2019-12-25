@@ -2,6 +2,7 @@ from pathlib import Path
 from copy import deepcopy
 from graphviz import Digraph
 from pyppl.plugin import hookimpl
+from pyppl.logger import logger
 
 __version__ = '0.1.0'
 
@@ -26,6 +27,8 @@ THEMES = dict(
 			style = 'filled',
 			color = '#eeeeee', # almost white
 		),
+		edge = dict(),
+		edge_hidden = dict(style = 'dashed'),
 	),
 
 	dark = dict(
@@ -50,6 +53,8 @@ THEMES = dict(
 			style = 'filled',
 			color = '#eeeeee', # almost white
 		),
+		edge = dict(),
+		edge_hidden = dict(style = 'dashed'),
 	)
 )
 
@@ -112,15 +117,22 @@ class Flowchart:
 		if node not in self.nodes[gname]:
 			self.nodes[gname].append(node)
 
-	def add_link(self, node1, node2):
+	def add_link(self, node1, node2, has_hidden = False):
 		"""@API
 		Add a link to the chart
 		@params:
 			node1 (Proc): The first process node.
 			node2 (Proc): The second process node.
+			has_hidden (bool): Whether there are processes hidden along the link
 		"""
-		if (node1, node2) not in self.links:
-			self.links.append((node1, node2))
+		if not has_hidden and (node1, node2, True) in self.links:
+			self.links.remove((node1, node2, True))
+
+		if has_hidden and (node1, node2, False) in self.links:
+			return
+
+		if (node1, node2, has_hidden) not in self.links:
+			self.links.append((node1, node2, has_hidden))
 
 	def _assemble(self):
 		"""
@@ -136,20 +148,20 @@ class Flowchart:
 					theme.update(self.theme['start'])
 				if node in self.ends:
 					theme.update(self.theme['end'])
-				if node.exdir:
-					theme.update(self.theme['export'])
-				if node.resume:
-					theme.update(self.theme[node.resume])
 				if node.desc != 'No description.':
 					theme['tooltip'] = node.desc
-				graph.node(node.name(False), **{k:str(v) for k, v in theme.items()})
+				graph.node(node.shortname, **{k:str(v) for k, v in theme.items()})
 			if group != ROOTGROUP:
 				graph.attr(label = group, **{k:str(v) for k,v in self.theme['procset'].items()})
 				self.graph.subgraph(graph)
 
 		# edges
-		for node1, node2 in self.links:
-			self.graph.edge(node1.name(False), node2.name(False))
+		for node1, node2, has_hidden in self.links:
+			self.graph.edge(
+				node1.shortname,
+				node2.shortname,
+				**{k:str(v) for k,v in self.theme[
+					'edge_hidden' if has_hidden else 'edge'].items()})
 
 	def generate(self):
 		"""@API
@@ -158,6 +170,16 @@ class Flowchart:
 		self._assemble()
 		self.graph.save(self.dotfile)
 		self.graph.render(self.fcfile.stem, cleanup = True)
+
+def _get_mate(proc):
+	nextprocs = proc.nexts
+	ret = []
+	for nproc in nextprocs:
+		if nproc.plugin_config.flowchart_hide:
+			ret.extend([(np[0], True) for np in _get_mate(nproc)])
+		else:
+			ret.append((nproc, False))
+	return ret
 
 def flowchart(ppl, fcfile = None, dotfile = None):
 	"""
@@ -180,18 +202,29 @@ def flowchart(ppl, fcfile = None, dotfile = None):
 	dotfile = Path(dotfile)
 
 	fchart  = Flowchart(fcfile = fcfile, dotfile = dotfile)
-	fchart.set_theme(ppl.runtime_config.plugin_config.flowchart_theme)
+	fchart.set_theme(ppl.runtime_config.get('plugin_config', {}).get('flowchart_theme'))
 
 	for start in ppl.starts:
+		if start.plugin_config.flowchart_hide:
+			raise ValueError('Cannot hide start process: %s' % start.name)
 		fchart.add_node(start, 'start')
 	for end in ppl.ends:
+		if end.plugin_config.flowchart_hide:
+			raise ValueError('Cannot hide end process: %s' % end.name)
 		fchart.add_node(end, 'end')
 
 	for proc in ppl.procs:
+		if proc.plugin_config.flowchart_hide:
+			if len(proc.depends) > 1 and len(proc.nexts) > 1:
+				raise ValueError('Cannot hide processes [%s] with multiple \
+					dependenders and multiple dependendees.' % proc.name)
+			continue
+		fchart.add_node(proc)
 		if not proc.nexts:
 			continue
-		for nproc in proc.nexts:
-			fchart.add_link(proc, nproc)
+
+		for mproc, has_hidden in _get_mate(proc):
+			fchart.add_link(proc, mproc, has_hidden)
 
 	fchart.generate()
 	logger.fchart('Flowchart file saved to: %s', fchart.fcfile)
@@ -205,6 +238,11 @@ def setup(config):
 @hookimpl
 def logger_init(logger):
 	logger.add_level('fchart')
+
+@hookimpl
+def proc_init(proc):
+	proc.add_config('flowchart_hide', default = False,
+		converter = bool, runtime = 'ignore')
 
 @hookimpl
 def pyppl_init(ppl):
