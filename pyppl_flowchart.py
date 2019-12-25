@@ -180,7 +180,7 @@ def flowchart(ppl, fcfile = None, dotfile = None):
 	dotfile = Path(dotfile)
 
 	fchart  = Flowchart(fcfile = fcfile, dotfile = dotfile)
-	fchart.set_theme(ppl.runtime_config.plugin_config.flowchart_theme)
+	fchart.set_theme(ppl.runtime_config.config.flowchart_theme)
 
 	for start in ppl.starts:
 		fchart.add_node(start, 'start')
@@ -200,7 +200,7 @@ def flowchart(ppl, fcfile = None, dotfile = None):
 
 @hookimpl
 def setup(config):
-	config.plugin_config.flowchart_theme = None
+	config.config.flowchart_theme = None
 
 @hookimpl
 def logger_init(logger):
