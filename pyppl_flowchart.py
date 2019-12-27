@@ -5,7 +5,7 @@ from graphviz import Digraph # pylint: disable=import-error
 from pyppl.plugin import hookimpl
 from pyppl.logger import logger
 
-__version__ = '0.1.2'
+__version__ = "0.1.3"
 
 THEMES = dict(
 	default = dict(

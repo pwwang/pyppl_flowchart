@@ -4,6 +4,7 @@ import sys
 from itertools import chain
 import pytest
 from pathlib import Path
+from simpleconf import Config
 from diot import Diot
 from pyppl import PyPPL, Proc, ProcSet
 from pyppl.utils import fs
@@ -25,6 +26,9 @@ def procs(request):
 
 @pytest.fixture
 def procset(procs):
+	# pretend they are running
+	procs.p1.runtime_config = procs.p2.runtime_config = procs.p3.runtime_config = Config()
+	procs.p1.runtime_config._load({'default': {'dirsig': False}})
 	return ProcSet(procs.p1, procs.p2, procs.p3, procs.p4)
 
 @pytest.fixture
