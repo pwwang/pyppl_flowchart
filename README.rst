@@ -60,7 +60,7 @@ Hiding some processes from flowchart
 
    # Turn
    # p1 -> p2 -> p3 -> p4 -> p5
-   p3.hide = True
+   p3.config.flowchart_hide = True
    # into:
    # p1 -> p2 -> p4 -> p5
 
@@ -69,13 +69,12 @@ Theming
 
 In your configuration:
 
-.. code-block:: yaml
+.. code-block::
 
-   default:
-       _flowchart:
-           theme: default
-       # other default configurations
-   # other profiles
+   [default.flowchart]
+   theme = "dark"
+
+   # other configuration
 
 We have two builtin themes: ``default`` and ``dark``\ :
 
@@ -93,33 +92,18 @@ We have two builtin themes: ``default`` and ``dark``\ :
 
 You can also default your own theme in the configuration:
 
-.. code-block:: yaml
+.. code-block::
 
-   default:
-       _flowchart:
-           theme:
-               base:
-                   shape: box
-                   style: rounded,filled
-                   fillcolor: "#ffffff"
-                   color: "#000000"
-                   fontcolor: "#000000"
-               start:
-                   style: filled
-                   color: "#259229"
-               end:
-                   style: filled
-                   color: "#d63125"
-               export:
-                   fontcolor: "#c71be4"
-               skip:
-                   fillcolor: "#eaeaea"
-               skip+:
-                   fillcolor: "#b5b3b3"
-               resume:
-                   fillcolor: "#b9ffcd"
-               resume+:
-                   fillcolor: "#58b773"
-               procset:
-                   style: filled
-                   color: "#eeeeee"
+   [default.flowchart.theme]
+   base = {
+       shape = "box",
+       style = "rounded,filled",
+       fillcolor = "#ffffff",
+       color = "#000000",
+       fontcolor = "#000000"
+   }
+   start = { style = "filled", color = "#259229" }
+   end = { style = "filled", color = "#d63125" }
+   procset = { style = "filled", color: "#eeeeee" }
+   edge = {}
+   edge_hidden = { style = "dashed" } # for links with hidden processes

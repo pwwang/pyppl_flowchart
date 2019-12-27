@@ -1,22 +1,26 @@
 
 ## test __init__.py
 import sys
+from itertools import chain
 import pytest
-from os import environ
 from pathlib import Path
-environ['PYPPL_default__log'] = 'py:{"leveldiffs": "DEBUG"}'
-from pyppl import PyPPL, Proc, Diot, ProcSet, ProcTree
+from diot import Diot
+from pyppl import PyPPL, Proc, ProcSet
 from pyppl.utils import fs
-pyppl_flowchart = __import__('pyppl_flowchart')
+import pyppl_flowchart
+
+def teardown_module(module):
+	for fcfile in chain(Path('.').glob('*.dot'), Path('.').glob('*.svg')):
+		fcfile.unlink()
 
 # don't use fix_flowchart, as plugin won't be loaded
 @pytest.fixture
-def procs():
+def procs(request):
 	return Diot(
-		p1 = Proc('p1'),
-		p2 = Proc('p2'),
-		p3 = Proc('p3'),
-		p4 = Proc('p4')
+		p1 = Proc('p1', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name),
+		p2 = Proc('p2', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name),
+		p3 = Proc('p3', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name),
+		p4 = Proc('p4', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
 	)
 
 @pytest.fixture
@@ -24,19 +28,18 @@ def procset(procs):
 	return ProcSet(procs.p1, procs.p2, procs.p3, procs.p4)
 
 @pytest.fixture
-def pset():
-	ProcTree.NODES.clear()
-	p14 = Proc()
-	p15 = Proc()
-	p16 = Proc()
-	p17 = Proc()
-	p18 = Proc()
-	p19 = Proc()
-	p20 = Proc()
+def pset(request):
+	p14 = Proc(input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
+	p15 = Proc(input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
+	p16 = Proc(input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
+	p17 = Proc(input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
+	p18 = Proc(input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
+	p19 = Proc(input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
+	p20 = Proc(input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
 	# p15 -> p16  ->  p17 -> 19
 	# p14 _/  \_ p18_/  \_ p20
 	#           hide
-	p18.hide = True
+	p18.config.flowchart_hide = True
 	p20.depends = p17
 	p19.depends = p17
 	p17.depends = p16, p18
@@ -55,25 +58,6 @@ def test_procset(procset, tmp_path):
 	fcfile = tmp_path / 'test_procset.svg'
 	PyPPL().start(procset).flowchart(fcfile).run()
 
-
-def test_showallroutes(pset, caplog, tmp_path):
-	fcfile = tmp_path / 'test_showallroutes.svg'
-	# p15 -> p16  ->  ps -> p19
-	# p14 _/  \_ p18_/  \_ p20
-	#           hide
-	pset.p17.depends = []
-	ps = ProcSet(Proc(id = 'p1'), Proc(id = 'p2'))
-	ps.depends = pset.p16, pset.p18
-	pset.p19.depends = ps
-	pset.p20.depends = ps
-	ppl = PyPPL().start(pset.p14, pset.p15)
-	ppl.flowchart(fcfile)
-	assert 'ALL ROUTES:' in caplog.text
-	assert '  p14 -> p16 -> [@ps] -> p19' in caplog.text
-	assert '  p14 -> p16 -> [@ps] -> p20' in caplog.text
-	assert '  p15 -> p16 -> [@ps] -> p19' in caplog.text
-	assert '  p15 -> p16 -> [@ps] -> p20' in caplog.text
-
 def test_flowchart(pset, caplog, tmp_path):
 	for p in pset.values():
 		p.input = {'a': [1]}
@@ -83,39 +67,39 @@ def test_flowchart(pset, caplog, tmp_path):
 	ppl.flowchart()
 	assert 'Flowchart file saved to:' in caplog.text
 	assert 'DOT file saved to:' in caplog.text
-	assert fs.exists('./%s.pyppl.svg' % Path(sys.argv[0]).stem)
-	assert fs.exists('./%s.pyppl.dot' % Path(sys.argv[0]).stem)
+	assert fs.exists('./%s.pyppl.svg' % Path(ppl.name))
+	assert fs.exists('./%s.pyppl.dot' % Path(ppl.name))
 
-	dot = Path('./%s.pyppl.dot' % Path(sys.argv[0]).stem).read_text()
-	assert 'p17 -> p19' in dot
-	assert 'p17 -> p20' in dot
-	assert 'p16 -> p17' in dot
-	#assert 'p16 -> p18' in dot # hidden
-	assert 'p14 -> p16' in dot
-	assert 'p15 -> p16' in dot
+	dot = Path('./%s.pyppl.dot' % Path(ppl.name)).read_text()
+	assert 'p17.test_flowchart" -> "p19.test_flowchart' in dot
+	assert 'p17.test_flowchart" -> "p20.test_flowchart' in dot
+	assert 'p16.test_flowchart" -> "p17.test_flowchart' in dot
+	assert 'p16.test_flowchart" -> "p18.test_flowchart' not in dot # hidden
+	assert 'p14.test_flowchart" -> "p16.test_flowchart' in dot
+	assert 'p15.test_flowchart" -> "p16.test_flowchart' in dot
 
-	fs.remove('./%s.pyppl.svg' % Path(sys.argv[0]).stem)
-	fs.remove('./%s.pyppl.dot' % Path(sys.argv[0]).stem)
+	fs.remove('./%s.pyppl.svg' % Path(ppl.name))
+	fs.remove('./%s.pyppl.dot' % Path(ppl.name))
 
 def test_hideerror(procs, tmp_path):
-	procs.p1.hide = True
+	procs.p1.config.flowchart_hide = True
 	procs.p2.depends = procs.p1
 	procs.p3.depends = procs.p2
 	procs.p4.depends = procs.p3
 
-	with pytest.raises(pyppl_flowchart.ProcHideError):
+	with pytest.raises(ValueError):
 		PyPPL().start(procs.p1).flowchart(tmp_path / 'test_hideerror1.svg')
 
-	procs.p1.hide = False
-	procs.p4.hide = True
-	with pytest.raises(pyppl_flowchart.ProcHideError):
+	procs.p1.config.flowchart_hide = False
+	procs.p4.config.flowchart_hide = True
+	with pytest.raises(ValueError):
 		PyPPL().start(procs.p1).flowchart(tmp_path / 'test_hideerror2.svg')
 
 	p5 = Proc()
-	procs.p4.hide = False
+	procs.p4.config.flowchart_hide = False
 	procs.p2.depends = procs.p1, p5
 	procs.p4.depends = procs.p2
 	procs.p3.depends = procs.p2
-	procs.p2.hide = True
-	with pytest.raises(pyppl_flowchart.ProcHideError):
+	procs.p2.config.flowchart_hide = True
+	with pytest.raises(ValueError):
 		PyPPL().start(procs.p1, p5).flowchart(tmp_path / 'test_hideerror3.svg')

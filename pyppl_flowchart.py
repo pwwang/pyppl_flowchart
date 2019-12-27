@@ -1,6 +1,7 @@
+"""Flowchart generator for PyPPL."""
 from pathlib import Path
 from copy import deepcopy
-from graphviz import Digraph
+from graphviz import Digraph # pylint: disable=import-error
 from pyppl.plugin import hookimpl
 from pyppl.logger import logger
 
@@ -72,8 +73,8 @@ class Flowchart:
 			fcfile (file): The flowchart file.
 			dotfile (file): The dot file.
 		"""
-		self.fcfile  = fcfile
-		self.dotfile = dotfile
+		self.fcfile  = Path(fcfile)
+		self.dotfile = Path(dotfile)
 		fmt          = self.fcfile.suffix
 		fmt          = 'svg' if not fmt else fmt[1:]
 		self.graph   = Digraph('PyPPL', format = fmt)
@@ -169,7 +170,7 @@ class Flowchart:
 		"""
 		self._assemble()
 		self.graph.save(self.dotfile)
-		self.graph.render(self.fcfile.stem, cleanup = True)
+		self.graph.render(self.fcfile.parent.joinpath(self.fcfile.stem), cleanup = True)
 
 def _get_mate(proc):
 	nextprocs = proc.nexts
@@ -193,16 +194,13 @@ def flowchart(ppl, fcfile = None, dotfile = None):
 	@returns:
 		(PyPPL): The pipeline object itself.
 	"""
-	if not ppl.starts:
-		raise ValueError("PyPPL().flowchart has to be called after PyPPL().start call.")
-
 	fcfile  = fcfile or Path('.').joinpath('%s.pyppl.svg' % ppl.name)
 	fcfile = Path(fcfile)
 	dotfile = dotfile if dotfile else Path(fcfile).with_suffix('.dot')
 	dotfile = Path(dotfile)
 
 	fchart  = Flowchart(fcfile = fcfile, dotfile = dotfile)
-	fchart.set_theme(ppl.runtime_config.config.flowchart_theme)
+	fchart.set_theme(ppl.procs[0].config.flowchart_theme)
 
 	for start in ppl.starts:
 		if start.config.flowchart_hide:
@@ -218,7 +216,7 @@ def flowchart(ppl, fcfile = None, dotfile = None):
 			if len(proc.depends) > 1 and len(proc.nexts) > 1:
 				raise ValueError('Cannot hide processes [%s] with multiple \
 					dependenders and multiple dependendees.' % proc.name)
-			continue
+			continue # pragma: no cover (wired this is not reported)
 		fchart.add_node(proc)
 		if not proc.nexts:
 			continue
@@ -233,20 +231,21 @@ def flowchart(ppl, fcfile = None, dotfile = None):
 
 @hookimpl
 def setup(config):
+	"""Add default config"""
 	config.config.flowchart_theme = None
 
 @hookimpl
 def logger_init(logger):
+	"""Add log level"""
 	logger.add_level('fchart')
 
 @hookimpl
 def proc_init(proc):
+	"""Add config for process"""
 	proc.add_config('flowchart_hide', default = False,
 		converter = bool, runtime = 'ignore')
 
 @hookimpl
 def pyppl_init(ppl):
-	"""
-	Initiate pipeline
-	"""
-	ppl.add_method(flowchart)
+	"""Initiate pipeline"""
+	ppl.add_method(flowchart, require = 'start')

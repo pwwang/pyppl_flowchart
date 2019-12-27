@@ -1,95 +1,71 @@
 import pytest
+from itertools import chain
+from pathlib import Path
 
 try:
 	from graphviz import Digraph
 except ImportError:
 	pytest.skip('graphviz is not installed', allow_module_level=True)
 
-flowchart = __import__('pyppl_flowchart.flowchart', fromlist = ['flowchart'])
-Flowchart, THEMES, ROOTGROUP = flowchart.Flowchart, flowchart.THEMES, flowchart.ROOTGROUP
-
 from pyppl import Proc
-
-
-@pytest.fixture
-def p1():
-	return Proc('p1')
+from pyppl_flowchart import Flowchart, THEMES, ROOTGROUP
 
 @pytest.fixture
-def p2():
-	return Proc('p2')
+def p1(request):
+	return Proc('p1', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
 
 @pytest.fixture
-def p3():
-	return Proc('p3')
+def p2(request):
+	return Proc('p2', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
 
 @pytest.fixture
-def p4():
-	return Proc('p4')
+def p3(request):
+	return Proc('p3', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
 
 @pytest.fixture
-def p_procset1():
-	p = Proc('p_procset1')
-	p.config.tag = 'notag@procset1'
+def p4(request):
+	return Proc('p4', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
+
+@pytest.fixture
+def p_procset1(request):
+	p = Proc('p_procset1', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name + '@procset1')
 	return p
 
 @pytest.fixture
-def p_procset2():
-	p = Proc('p_procset2')
-	p.config.tag = 'notag@procset2'
+def p_procset2(request):
+	p = Proc('p_procset2', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name + '@procset2')
 	return p
 
 @pytest.fixture
-def p_procset3():
-	p = Proc('p_procset3')
-	p.config.tag = 'notag@p_procset3'
+def p_procset3(request):
+	p = Proc('p_procset3', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name + '@procset3')
 	return p
 
 @pytest.fixture
-def p_tag_1st():
-	return Proc('p_tag_1st', tag = '1st')
+def p_tag_1st(request):
+	return Proc('p_tag_1st', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name)
 
 @pytest.fixture
-def p_desc():
-	return Proc('p_desc', desc = 'The description of p')
-
-@pytest.fixture
-def p_skipplus():
-	return Proc('p_skipplus', resume = 'skip+')
-
-@pytest.fixture
-def p_exdir():
-	return Proc('p_exdir', exdir = '.')
-
-@pytest.fixture
-def p_procset1_skipplus():
-	p = Proc('p_procset1_skipplus', resume = 'skip+')
-	p.config.tag = 'notag@procset1'
-	return p
-
-@pytest.fixture
-def p_procset2_exdir():
-	p = Proc('p_procset2_exdir', exdir = '.')
-	p.config.tag = 'notag@procset2'
-	return p
+def p_desc(request):
+	return Proc('p_desc', input = {'in:var':[0]}, output = 'out:var1', tag = request.node.name, desc = 'The description of p')
 
 @pytest.fixture
 def procs(p1, p2, p3, p4, p_procset1, p_procset2, p_procset3,
-	p_tag_1st, p_desc, p_skipplus, p_exdir, p_procset1_skipplus, p_procset2_exdir):
+	p_tag_1st, p_desc):
 	return dict(
-		p1                  = p1,
-		p2                  = p2,
-		p3                  = p3,
-		p4                  = p4,
-		p_procset1          = p_procset1,
-		p_procset2          = p_procset2,
-		p_procset3          = p_procset3,
-		p_tag_1st           = p_tag_1st,
-		p_desc              = p_desc,
-		p_skipplus          = p_skipplus,
-		p_procset1_skipplus = p_procset1_skipplus,
-		p_procset2_exdir    = p_procset2_exdir,
-		p_exdir             = p_exdir)
+		p1         = p1,
+		p2         = p2,
+		p3         = p3,
+		p4         = p4,
+		p_procset1 = p_procset1,
+		p_procset2 = p_procset2,
+		p_procset3 = p_procset3,
+		p_tag_1st  = p_tag_1st,
+		p_desc     = p_desc)
+
+def teardown_module(module):
+	for fcfile in chain(Path('.').glob('*.dot'), Path('.').glob('*.svg')):
+		fcfile.unlink()
 
 class TestFlowchart:
 	@classmethod
@@ -99,6 +75,8 @@ class TestFlowchart:
 	def test_init(self, tmpdir):
 		self.dotfile = str(tmpdir / 'flowchart.dot')
 		self.fcfile = str(tmpdir / 'flowchart.svg')
+		self.fc.fcfile = self.fcfile
+		self.fc.dotfile = self.dotfile
 		assert isinstance(self.fc, Flowchart)
 		assert isinstance(self.fc.graph, Digraph)
 		assert self.fc.theme == THEMES['default']
@@ -117,12 +95,9 @@ class TestFlowchart:
 					'fontcolor': '#000000',
 					'shape': 'box',
 					'style': 'rounded,filled'},
+			'edge': {},
+			'edge_hidden': {'style': 'dashed'},
 			'end': {'color': '#d63125', 'style': 'filled'},
-			'export': {'fontcolor': '#c71be4'},
-			'resume': {'fillcolor': '#b9ffcd'},
-			'resume+': {'fillcolor': '#58b773'},
-			'skip': {'fillcolor': '#eaeaea'},
-			'skip+': {'fillcolor': '#b5b3b3'},
 			'start': {'color': '#259229', 'style': 'filled'}
 		}),
 		({'base': {'shape': 'circle'}}, 'dark', {
@@ -132,17 +107,14 @@ class TestFlowchart:
 					'fontcolor': '#ffffff',
 					'shape': 'circle',
 					'style': 'rounded,filled'},
+			'edge': {},
+			'edge_hidden': {'style': 'dashed'},
 			'end': {'color': '#ea7d75', 'penwidth': 2, 'style': 'filled'},
-			'export': {'fontcolor': '#db95e6'},
-			'resume': {'fillcolor': '#1b5a2d'},
-			'resume+': {'fillcolor': '#a7f2bb'},
-			'skip': {'fillcolor': '#b5b3b3'},
-			'skip+': {'fillcolor': '#d1cfcf'},
 			'start': {'color': '#59b95d', 'penwidth': 2, 'style': 'filled'}
 		})
 	])
-	def test_settheme(self, theme, tmbase, tmout):
-		self.fc.setTheme(theme, tmbase)
+	def test_set_theme(self, theme, tmbase, tmout):
+		self.fc.set_theme(theme, tmbase)
 		assert self.fc.theme == tmout
 
 	@pytest.mark.parametrize('proc, role, instarts, inends, group', [
@@ -153,9 +125,9 @@ class TestFlowchart:
 		('p_procset1', 'start', True, False, 'procset1'),
 		('p_procset2', 'end', False, True, 'procset2'),
 	])
-	def test_addNode(self, procs, proc, role, instarts, inends, group):
+	def test_add_node(self, procs, proc, role, instarts, inends, group):
 		proc = procs[proc]
-		self.fc.addNode(proc, role)
+		self.fc.add_node(proc, role)
 		assert (proc in self.fc.starts) == instarts
 		assert (proc in self.fc.ends) == inends
 		assert proc in self.fc.nodes[group]
@@ -163,50 +135,31 @@ class TestFlowchart:
 	@pytest.mark.parametrize('n1, n2', [
 		('p1', 'p2')
 	])
-	def test_addLink(self, procs, n1, n2):
+	def test_add_link(self, procs, n1, n2):
 		n1 = procs[n1]
 		n2 = procs[n2]
-		self.fc.addLink(n1, n2)
-		assert (n1, n2) in self.fc.links
+		self.fc.add_link(n1, n2)
+		assert (n1, n2, False) in self.fc.links
 
-	@pytest.mark.parametrize('nodes, starts, ends, links, theme, basetheme, srcs, svgs', [
+	@pytest.mark.parametrize('nodes, starts, ends, links, theme, basetheme, srcs', [
 		(['p_tag_1st', 'p_desc', 'p1', 'p_procset1'],
 		 ['p_tag_1st'],
 		 ['p_procset1'],
 		 [('p_tag_1st', 'p_desc'), ('p_desc', 'p1'), ('p1', 'p_procset1')],
 		 'default', 'default',
 		 ['digraph PyPPL {',
-		  'p_tag_1st.1st', 'color="#259229"',
+		  'p_tag_1st.test_assemble_and_generate', 'color="#259229"',
 		  'p_desc', 'color="#000000"',
 		  'p1', 'color="#000000"',
 		  'subgraph cluster_procset1 {',
 		  'p_procset1', 'color="#d63125"',
 		  'color="#eeeeee"',
-		  '"p_tag_1st.1st" -> p_desc',
-		  'p_desc -> p1',
-		  'p1 -> p_procset1'],
-		 ['<title>PyPPL</title>',
-		  '<title>cluster_procset1</title>',
-		  '<!-- p_tag_1st.1st -->',
-		  '<title>p_tag_1st.1st</title>',
-		  '<!-- p_desc -->',
-		  '<title>p_desc</title>',
-		  '<!-- p_tag_1st.1st&#45;&gt;p_desc -->',
-		  '<title>p_tag_1st.1st&#45;&gt;p_desc</title>',
-		  '<!-- p_tag_1st.1st&#45;&gt;p_desc -->',
-		  '<title>p_tag_1st.1st&#45;&gt;p_desc</title>',
-		  '<!-- p1 -->',
-		  '<title>p1</title>',
-		  '<!-- p_desc&#45;&gt;p1 -->',
-		  '<title>p_desc&#45;&gt;p1</title>',
-		  '<!-- p_desc&#45;&gt;p1 -->',
-		  '<title>p_desc&#45;&gt;p1</title>',
-		  '<!-- p_procset1 -->',
-		  '<title>p_procset1</title>',
-		  '<!-- p1&#45;&gt;p_procset1 -->',
-		  '<title>p1&#45;&gt;p_procset1</title>',
-		  '<!-- p1&#45;&gt;p_procset1 -->',
-		  '<title>p1&#45;&gt;p_procset1</title>',]),
+		  '"p_tag_1st.test_assemble_and_generate[',
+		  ' -> "p_desc.test_assemble_and_generate[',
+		  '"p_desc.test_assemble_and_generate[',
+		  ' -> "p1.test_assemble_and_generate[',
+		  '"p1.test_assemble_and_generate[',
+		  ' -> "p_procset1.test_assemble_and_generate[']),
 
 		(['p_tag_1st', 'p_desc', 'p1', 'p_procset1'],
 		 ['p_tag_1st'],
@@ -214,123 +167,30 @@ class TestFlowchart:
 		 [('p_tag_1st', 'p_desc'), ('p_desc', 'p1'), ('p1', 'p_procset1')],
 		 'dark', 'default',
 		 ['digraph PyPPL {',
-		  'p_tag_1st.1st', 'color="#59b95d"',
+		  'p_tag_1st.test_assemble_and_generate', 'color="#59b95d"',
 		  'p_desc', 'color="#ffffff"',
 		  'p1', 'color="#ffffff"',
 		  'subgraph cluster_procset1 {',
 		  'p_procset1', 'color="#ea7d75"',
 		  'color="#eeeeee"',
-		  '"p_tag_1st.1st" -> p_desc',
-		  'p_desc -> p1',
-		  'p1 -> p_procset1'],
-		 ['<title>PyPPL</title>',
-		  '<title>cluster_procset1</title>',
-		  '<!-- p_tag_1st.1st -->',
-		  '<title>p_tag_1st.1st</title>',
-		  '<!-- p_desc -->',
-		  '<title>p_desc</title>',
-		  '<!-- p_tag_1st.1st&#45;&gt;p_desc -->',
-		  '<title>p_tag_1st.1st&#45;&gt;p_desc</title>',
-		  '<!-- p_tag_1st.1st&#45;&gt;p_desc -->',
-		  '<title>p_tag_1st.1st&#45;&gt;p_desc</title>',
-		  '<!-- p1 -->',
-		  '<title>p1</title>',
-		  '<!-- p_desc&#45;&gt;p1 -->',
-		  '<title>p_desc&#45;&gt;p1</title>',
-		  '<!-- p_desc&#45;&gt;p1 -->',
-		  '<title>p_desc&#45;&gt;p1</title>',
-		  '<!-- p_procset1 -->',
-		  '<title>p_procset1</title>',
-		  '<!-- p1&#45;&gt;p_procset1 -->',
-		  '<title>p1&#45;&gt;p_procset1</title>',
-		  '<!-- p1&#45;&gt;p_procset1 -->',
-		  '<title>p1&#45;&gt;p_procset1</title>']),
-		#  p1           p2        p3    p4            p5                     p6
-		(['p_tag_1st', 'p_desc', 'p1', 'p_procset1', 'p_procset1_skipplus', 'p_procset2_exdir'],
-		 ['p_tag_1st', 'p_procset1_skipplus'],
-		 ['p_procset1', 'p_procset1'],
-		 [('p_tag_1st', 'p_desc'),
-		  ('p_desc', 'p1'),
-		  ('p1', 'p_procset1'),
-		  ('p_desc', 'p_procset1_skipplus'),
-		  ('p1', 'p_procset1_skipplus'),
-		  ('p_procset1_skipplus', 'p_procset2_exdir')],
-		 {'base': {'shape': 'circle'}}, 'dark',
-		 ['digraph PyPPL {',
-		  'p_tag_1st.1st', 'color="#59b95d"',
-		  'p_desc', 'color="#ffffff"',
-		  'p1', 'color="#ffffff"',
-		  'subgraph cluster_procset1 {',
-		  'p_procset1', 'color="#ea7d75"',
-		  'p_procset1_skipplus', 'color="#59b95d"',
-		  'color="#eeeeee"',
-		  'subgraph cluster_procset2 {',
-		  'p_procset2_exdir', 'color="#ffffff"',
-		  'color="#eeeeee"',
-		  '"p_tag_1st.1st" -> p_desc',
-		  'p_desc -> p1',
-		  'p1 -> p_procset1',
-		  'p_desc -> p_procset1_skipplus',
-		  'p1 -> p_procset1_skipplus',
-		  'p_procset1_skipplus -> p_procset2_exdir'],
-		 ['<title>PyPPL</title>',
-		  '<title>cluster_procset1</title>',
-		  '<title>cluster_procset2</title>',
-		  '<!-- p_tag_1st.1st -->',
-		  '<title>p_tag_1st.1st</title>',
-		  '<!-- p_desc -->',
-		  '<title>p_desc</title>',
-		  '<!-- p_tag_1st.1st&#45;&gt;p_desc -->',
-		  '<title>p_tag_1st.1st&#45;&gt;p_desc</title>',
-		  '<!-- p_tag_1st.1st&#45;&gt;p_desc -->',
-		  '<title>p_tag_1st.1st&#45;&gt;p_desc</title>',
-		  '<!-- p1 -->',
-		  '<title>p1</title>',
-		  '<!-- p_desc&#45;&gt;p1 -->',
-		  '<title>p_desc&#45;&gt;p1</title>',
-		  '<!-- p_desc&#45;&gt;p1 -->',
-		  '<title>p_desc&#45;&gt;p1</title>',
-		  '<!-- p_procset1_skipplus -->',
-		  '<title>p_procset1_skipplus</title>',
-		  '<!-- p_desc&#45;&gt;p_procset1_skipplus -->',
-		  '<title>p_desc&#45;&gt;p_procset1_skipplus</title>',
-		  '<!-- p_desc&#45;&gt;p_procset1_skipplus -->',
-		  '<title>p_desc&#45;&gt;p_procset1_skipplus</title>',
-		  '<!-- p_procset1 -->',
-		  '<title>p_procset1</title>',
-		  '<!-- p1&#45;&gt;p_procset1 -->',
-		  '<title>p1&#45;&gt;p_procset1</title>',
-		  '<!-- p1&#45;&gt;p_procset1 -->',
-		  '<title>p1&#45;&gt;p_procset1</title>',
-		  '<!-- p1&#45;&gt;p_procset1_skipplus -->',
-		  '<title>p1&#45;&gt;p_procset1_skipplus</title>',
-		  '<!-- p1&#45;&gt;p_procset1_skipplus -->',
-		  '<title>p1&#45;&gt;p_procset1_skipplus</title>',
-		  '<!-- p_procset2_exdir -->',
-		  '<title>p_procset2_exdir</title>',
-		  '<!-- p_procset1_skipplus&#45;&gt;p_procset2_exdir -->',
-		  '<title>p_procset1_skipplus&#45;&gt;p_procset2_exdir</title>',
-		  '<!-- p_procset1_skipplus&#45;&gt;p_procset2_exdir -->',
-		  '<title>p_procset1_skipplus&#45;&gt;p_procset2_exdir</title>',]),
+		  '"p_tag_1st.test_assemble_and_generate', ' -> "p_desc',
+		  '"p_desc', ' -> "p1',
+		  '"p1', ' -> "p_procset1']),
 	])
-	def test_assemble_and_generate(self, tmpdir, procs, nodes, starts, ends, links, theme, basetheme, srcs, svgs):
-		self.fc = Flowchart(str(tmpdir / 'flowchart.svg'), str(tmpdir / 'flowchart.doct'))
-		self.fc.setTheme(theme, basetheme)
+	def test_assemble_and_generate(self, tmpdir, procs, nodes, starts, ends, links, theme, basetheme, srcs):
+		self.fc = Flowchart(str(tmpdir / 'flowchart.svg'), str(tmpdir / 'flowchart.dot'))
+		self.fc.set_theme(theme, basetheme)
 		starts = [procs[start] for start in starts]
 		ends = [procs[end] for end in ends]
 		for node in nodes:
 			node = procs[node]
-			self.fc.addNode(node, 'start' if node in starts else 'end' if node in ends else None)
+			self.fc.add_node(node, 'start' if node in starts else 'end' if node in ends else None)
+		self.fc.add_link(procs[links[0][0]], procs[links[0][1]], True)
 		for link in links:
-			self.fc.addLink(procs[link[0]], procs[link[1]])
-		self.fc._assemble()
+			self.fc.add_link(procs[link[0]], procs[link[1]])
+		self.fc.generate()
 		source = self.fc.graph.source
 		for src in srcs:
 			assert src in source
 			source = source[(source.find(src) + len(src)):]
-		self.fc.generate()
-		with open(self.fc.fcfile) as ffc:
-			svgsource = ffc.read()
-		for svg in svgs:
-			assert svg in svgsource
-			svgsource = svgsource[(svgsource.find(svg) + len(svg)):]
+		assert self.fc.fcfile.exists()
