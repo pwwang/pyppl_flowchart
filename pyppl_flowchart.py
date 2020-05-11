@@ -5,7 +5,7 @@ from graphviz import Digraph  # pylint: disable=import-error
 from pyppl.plugin import hookimpl
 from pyppl.logger import Logger
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 logger = Logger(plugin='fcchart') # pylint: disable=invalid-name
 
