@@ -21,7 +21,7 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name='pyppl_flowchart',
-    version='0.1.4',
+    version='0.1.5',
     description='Generating flowchart for PyPPL',
     python_requires='==3.*,>=3.6.0',
     project_urls={

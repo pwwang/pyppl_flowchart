@@ -6,7 +6,7 @@ from pyppl.plugin import hookimpl
 from pyppl.config import config
 from pyppl.logger import Logger
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 logger = Logger(plugin='fcchart') # pylint: disable=invalid-name
 
