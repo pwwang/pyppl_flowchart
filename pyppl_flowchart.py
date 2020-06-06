@@ -3,11 +3,14 @@ from pathlib import Path
 from copy import deepcopy
 from graphviz import Digraph  # pylint: disable=import-error
 from pyppl.plugin import hookimpl
+from pyppl.config import config
 from pyppl.logger import Logger
 
 __version__ = "0.1.4"
 
 logger = Logger(plugin='fcchart') # pylint: disable=invalid-name
+
+config.config.flowchart_theme = None
 
 THEMES = dict(
     default=dict(
@@ -240,13 +243,6 @@ def flowchart(ppl, fcfile=None, dotfile=None):
     logger.fchart('Flowchart file saved to: %s', fchart.fcfile)
     logger.fchart('DOT file saved to: %s', fchart.dotfile)
     return ppl
-
-
-@hookimpl
-def setup(config):
-    """Add default config"""
-    config.config.flowchart_theme = None
-
 
 @hookimpl
 def logger_init(logger): # pylint: disable=redefined-outer-name
